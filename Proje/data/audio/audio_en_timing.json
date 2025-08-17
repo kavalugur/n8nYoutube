@@ -1,0 +1,241 @@
+{
+  "language": "en",
+  "total_duration": 280.368,
+  "total_segments": 29,
+  "audio_file": "data/audio\\audio_en.mp3",
+  "created_at": "0:00:00",
+  "segments": [
+    {
+      "index": 1,
+      "text": "Hello football fans, Anderson Talisca, who has made a name for himself in every transfer window for the last six years, is on the agenda again",
+      "start_time": 0.0,
+      "end_time": 11.376,
+      "duration": 11.376,
+      "status": "success"
+    },
+    {
+      "index": 2,
+      "text": "After taking Beşiktaş by storm for two seasons, the Brazilian is set to return to Turkey to don the yellow navy blue jersey",
+      "start_time": 11.676,
+      "end_time": 20.94,
+      "duration": 9.264,
+      "status": "success"
+    },
+    {
+      "index": 3,
+      "text": "In this video, we will evaluate all the pros and cons of Anderson Talisca",
+      "start_time": 21.24,
+      "end_time": 26.928,
+      "duration": 5.688,
+      "status": "success"
+    },
+    {
+      "index": 4,
+      "text": "If you're ready, let's start this hundred-second analysis",
+      "start_time": 27.228,
+      "end_time": 31.188,
+      "duration": 3.96,
+      "status": "success"
+    },
+    {
+      "index": 5,
+      "text": "Anderson Souza Conceição, or Anderson Talisca as we all know him",
+      "start_time": 31.488,
+      "end_time": 36.936,
+      "duration": 5.448,
+      "status": "success"
+    },
+    {
+      "index": 6,
+      "text": "When he played in Turkey, the number ten position was dubbed \"the link of the league\" for a simple reason: he pulls rabbits out of hats at the most crucial moments",
+      "start_time": 37.236,
+      "end_time": 48.372,
+      "duration": 11.136,
+      "status": "success"
+    },
+    {
+      "index": 7,
+      "text": "The Brazilian star, who contributed a total of thirty-seven goals and fourteen assists in seventy games for Beşiktaş, is a name engraved in the memory of the audience with his hard and accurate shots from unexpected places, stylish headers and penalty-like free-kicks",
+      "start_time": 48.672,
+      "end_time": 68.184,
+      "duration": 19.512,
+      "status": "success"
+    },
+    {
+      "index": 8,
+      "text": "Talisca, who was transferred from Benfica at the time he made his name known to the world, was expected to play in Europe's five major leagues, but he surprised everyone by turning his route to Asia",
+      "start_time": 68.484,
+      "end_time": 82.092,
+      "duration": 13.608,
+      "status": "success"
+    },
+    {
+      "index": 9,
+      "text": "The Brazilian, who became a fan favorite during his time in Guangzhou, made his next stop at Al Nassr, one of the most important teams in Saudi Arabia",
+      "start_time": 82.392,
+      "end_time": 93.456,
+      "duration": 11.064,
+      "status": "success"
+    },
+    {
+      "index": 10,
+      "text": "The Brazilian number ten, who continues to dominate the league in Arabia, is a name that even a superstar like Cristiano Ronaldo leaves the free-kicks to him",
+      "start_time": 93.756,
+      "end_time": 104.988,
+      "duration": 11.232,
+      "status": "success"
+    },
+    {
+      "index": 11,
+      "text": "Talisca, who is effective in Arabia not only in the number ten position but also on the right wing and as a center forward, has returned as a more complete player than he was in Turkey",
+      "start_time": 105.288,
+      "end_time": 118.656,
+      "duration": 13.368,
+      "status": "success"
+    },
+    {
+      "index": 12,
+      "text": "The fact that he will be working with a coach who can be in the right place at the right time and speaks his own language is another advantage for him and for the possible manager Jose Mourinho",
+      "start_time": 118.956,
+      "end_time": 131.364,
+      "duration": 12.408,
+      "status": "success"
+    },
+    {
+      "index": 13,
+      "text": "Talisca's knowledge of the league, his familiarity with the derbies and the tough atmospheres here, and the fact that Cenk Tosun, with whom he gets along very well, also wears the yellow navy blue jersey, will make Talisca's adaptation to Fenerbahçe easier",
+      "start_time": 131.664,
+      "end_time": 150.384,
+      "duration": 18.72,
+      "status": "success"
+    },
+    {
+      "index": 14,
+      "text": "This season, Fenerbahce have lacked a player who is able to play finishing balls into the penalty area and make the most of them",
+      "start_time": 150.684,
+      "end_time": 159.876,
+      "duration": 9.192,
+      "status": "success"
+    },
+    {
+      "index": 15,
+      "text": "The absence of Szymanski, who filled this gap in the first half of last season, is perhaps one of the biggest factors pushing Fenerbahce back in the title race",
+      "start_time": 160.176,
+      "end_time": 171.36,
+      "duration": 11.184,
+      "status": "success"
+    },
+    {
+      "index": 16,
+      "text": "Talisca is a star who, when he meets the ball in the right place, scores goals that make you say \"where did that come from\", so to speak",
+      "start_time": 171.66,
+      "end_time": 182.148,
+      "duration": 10.488,
+      "status": "success"
+    },
+    {
+      "index": 17,
+      "text": "The presence of a player like Edin Dzeko, who can serve and wall off his teammates, will be another factor that will make Talisca stand out",
+      "start_time": 182.448,
+      "end_time": 192.096,
+      "duration": 9.648,
+      "status": "success"
+    },
+    {
+      "index": 18,
+      "text": "His runs into the spaces vacated by him will help the Brazilian star to reach double-digit goals in the second half, while Dusan Tadic, who will be able to play balls into these spaces blindly, will have a positive impact on Talisca's game in every sense",
+      "start_time": 192.396,
+      "end_time": 210.972,
+      "duration": 18.576,
+      "status": "success"
+    },
+    {
+      "index": 19,
+      "text": "However, we should not ignore Talisca's notorious defensive deficiency",
+      "start_time": 211.272,
+      "end_time": 216.6,
+      "duration": 5.328,
+      "status": "success"
+    },
+    {
+      "index": 20,
+      "text": "The Brazilian star's reluctance in the tackles could give Fenerbahce, already a bleeding wound in this regard, even more difficult moments",
+      "start_time": 216.9,
+      "end_time": 226.428,
+      "duration": 9.528,
+      "status": "success"
+    },
+    {
+      "index": 21,
+      "text": "Even though Szymanski is in poor form, he is a player who adds to Fenerbahce's strength in terms of pressing",
+      "start_time": 226.728,
+      "end_time": 234.624,
+      "duration": 7.896,
+      "status": "success"
+    },
+    {
+      "index": 22,
+      "text": "His replacement, Talisca, could cause the yellow navy to exert more effort when the opponent has the ball, as if they were playing a man down",
+      "start_time": 234.924,
+      "end_time": 244.86,
+      "duration": 9.936,
+      "status": "success"
+    },
+    {
+      "index": 23,
+      "text": "How beneficial this would be for Fenerbahce, whose average age is already high, is a matter of debate",
+      "start_time": 245.16,
+      "end_time": 252.792,
+      "duration": 7.632,
+      "status": "success"
+    },
+    {
+      "index": 24,
+      "text": "There is no doubt that he can score the crucial goal at critical moments",
+      "start_time": 253.092,
+      "end_time": 257.892,
+      "duration": 4.8,
+      "status": "success"
+    },
+    {
+      "index": 25,
+      "text": "However, if his productivity issues are not minimized, Talisca might not be useful after a while",
+      "start_time": 258.192,
+      "end_time": 265.248,
+      "duration": 7.056,
+      "status": "success"
+    },
+    {
+      "index": 26,
+      "text": "What do you think about Fenerbahce's transfer of Anderson Talisca",
+      "start_time": 265.548,
+      "end_time": 270.06,
+      "duration": 4.512,
+      "status": "success"
+    },
+    {
+      "index": 27,
+      "text": "Will Talisca help the yellow navy blue on their way to the championship",
+      "start_time": 270.36,
+      "end_time": 275.376,
+      "duration": 5.016,
+      "status": "success"
+    },
+    {
+      "index": 28,
+      "text": "We are waiting for your comments",
+      "start_time": 275.676,
+      "end_time": 277.908,
+      "duration": 2.232,
+      "status": "success"
+    },
+    {
+      "index": 29,
+      "text": "Goodbye with short passes",
+      "start_time": 278.208,
+      "end_time": 280.368,
+      "duration": 2.16,
+      "status": "success"
+    }
+  ]
+}

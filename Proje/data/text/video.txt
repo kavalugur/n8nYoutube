@@ -1,0 +1,3 @@
+Merhaba dünya! Bu bir test videosudur. 
+Bu proje, videoları otomatik olarak çoklu dile çevirir. 
+Türkçe, İngilizce ve Almanca desteklenmektedir.

@@ -1,0 +1,241 @@
+{
+  "language": "tr",
+  "total_duration": 339.264,
+  "total_segments": 29,
+  "audio_file": "data/audio\\audio_tr.mp3",
+  "created_at": "0:00:00",
+  "segments": [
+    {
+      "index": 1,
+      "text": "Merhaba futbolseverler, son altı yıldır her transfer döneminde adından sıkça söz ettiren Anderson Talisca, yine gündemde",
+      "start_time": 0.0,
+      "end_time": 11.52,
+      "duration": 11.52,
+      "status": "success"
+    },
+    {
+      "index": 2,
+      "text": "Beşiktaş'ta iki sezon boyunca fırtına gibi esen Brezilyalı, Türkiye'ye dönerek sarı lacivertli formayı giymeye hazırlanıyor",
+      "start_time": 11.82,
+      "end_time": 22.164,
+      "duration": 10.344,
+      "status": "success"
+    },
+    {
+      "index": 3,
+      "text": "Bu videoda, Anderson Talisca'nın tüm artı ve eksilerini değerlendireceğiz",
+      "start_time": 22.464,
+      "end_time": 28.968,
+      "duration": 6.504,
+      "status": "success"
+    },
+    {
+      "index": 4,
+      "text": "Eğer hazırsanız, bu yüz saniyelik analizimize başlayalım",
+      "start_time": 29.268,
+      "end_time": 34.26,
+      "duration": 4.992,
+      "status": "success"
+    },
+    {
+      "index": 5,
+      "text": "Anderson Souza Conceição, yani hepimizin bildiği ismiyle Anderson Talisca",
+      "start_time": 34.56,
+      "end_time": 41.856,
+      "duration": 7.296,
+      "status": "success"
+    },
+    {
+      "index": 6,
+      "text": "Türkiye'de oynadığı dönemde, \"ligin bağı\" olarak adlandırılan on numara pozisyonu için bu benzetmenin yapılmasının basit bir nedeni var: en kritik anlarda şapkadan tavşan çıkarması",
+      "start_time": 42.156,
+      "end_time": 58.5,
+      "duration": 16.344,
+      "status": "success"
+    },
+    {
+      "index": 7,
+      "text": "Beşiktaş formasıyla çıktığı yetmiş maçta, toplam otuz yedi gol ve on dört asistlik katkı sağlayan Brezilyalı yıldız, kimsenin beklemediği yerlerden attığı sert ve isabetli şutlar, şık kafa golleri ve penaltı gibi kullandığı frikiklerle, izleyenlerin hafızasına kazınmış bir isim",
+      "start_time": 58.8,
+      "end_time": 83.544,
+      "duration": 24.744,
+      "status": "success"
+    },
+    {
+      "index": 8,
+      "text": "Adını dünyaya duyurduğu dönemde Benfica'dan transfer olan Talisca'nın, Avrupa'nın beş büyük liginde forma giymesi beklenirken, rotasını Asya'ya çevirerek herkesi şaşırtmıştı",
+      "start_time": 83.844,
+      "end_time": 98.628,
+      "duration": 14.784,
+      "status": "success"
+    },
+    {
+      "index": 9,
+      "text": "Guangzhou'da forma giydiği dönemde taraftarların sevgilisi haline gelen Brezilyalı'nın bir sonraki durağı ise Suudi Arabistan'ın en önemli ekiplerinden Al Nassr oldu",
+      "start_time": 98.928,
+      "end_time": 113.688,
+      "duration": 14.76,
+      "status": "success"
+    },
+    {
+      "index": 10,
+      "text": "Arabistan'da da ligin tozunu attırmaya devam eden Brezilyalı on numara, Cristiano Ronaldo gibi bir süper starın bile frikikleri kendisine bıraktığı bir isim konumunda",
+      "start_time": 113.988,
+      "end_time": 128.244,
+      "duration": 14.256,
+      "status": "success"
+    },
+    {
+      "index": 11,
+      "text": "Arabistan'da on numara pozisyonunun yanı sıra, sağ kanat ve santrafor bölgelerinde de etkili olan Talisca'nın, Türkiye döneminden daha komple bir oyuncu olarak geri döndüğünü söylemek yanlış olmaz",
+      "start_time": 128.544,
+      "end_time": 144.912,
+      "duration": 16.368,
+      "status": "success"
+    },
+    {
+      "index": 12,
+      "text": "Doğru zamanda doğru yerde olmayı başaran ve kendi dilinden konuşan bir hocayla çalışacak olması da, hem onun için hem de olası teknik direktör Jose Mourinho için ayrı bir avantaj",
+      "start_time": 145.212,
+      "end_time": 160.236,
+      "duration": 15.024,
+      "status": "success"
+    },
+    {
+      "index": 13,
+      "text": "Ligi bilmesi, buradaki derbilere ve zorlu atmosferlere alışkın olması ve çok iyi anlaştığı Cenk Tosun'un da sarı lacivertli formayı giymesi, Talisca'nın Fenerbahçe'ye uyum sürecini kolaylaştıracaktır",
+      "start_time": 160.536,
+      "end_time": 178.344,
+      "duration": 17.808,
+      "status": "success"
+    },
+    {
+      "index": 14,
+      "text": "Fenerbahçe'de bu sezon ceza sahasında bitirici toplarla buluşabilen ve bu topları olumlu değerlendiren bir oyuncu eksikliği yaşanıyor",
+      "start_time": 178.644,
+      "end_time": 190.356,
+      "duration": 11.712,
+      "status": "success"
+    },
+    {
+      "index": 15,
+      "text": "Geçen sezonun ilk devresinde bu açığı kapatan Szymanski'nin eski performansından uzak olması, belki de Fenerbahçe'yi şampiyonluk yarışında geriye iten en büyük etkenlerden biri",
+      "start_time": 190.656,
+      "end_time": 205.56,
+      "duration": 14.904,
+      "status": "success"
+    },
+    {
+      "index": 16,
+      "text": "Talisca, topla doğru yerde buluştuğunda, tabiri caizse \"nereden çıktı bu\" dedirten goller atan bir yıldız",
+      "start_time": 205.86,
+      "end_time": 215.94,
+      "duration": 10.08,
+      "status": "success"
+    },
+    {
+      "index": 17,
+      "text": "Edin Dzeko gibi takım arkadaşlarına servis yapan ve onlara duvar olan bir oyuncunun varlığı da Talisca'yı öne çıkaracak başka bir etken olacaktır",
+      "start_time": 216.24,
+      "end_time": 228.6,
+      "duration": 12.36,
+      "status": "success"
+    },
+    {
+      "index": 18,
+      "text": "Onun boşalttığı alanlara yapacağı koşular, Brezilyalı yıldızın ikinci devrede çift haneli gol sayısına ulaşması konusunda yardımcı olurken, bu boşluklara topları gözü kapalı atabilecek olan Dusan Tadic de Talisca'nın oyununu her anlamda olumlu etkileyecektir",
+      "start_time": 228.9,
+      "end_time": 251.46,
+      "duration": 22.56,
+      "status": "success"
+    },
+    {
+      "index": 19,
+      "text": "Fakat burada, Talisca'nın herkesin bildiği o defansif eksiğini de göz ardı etmememiz gerekiyor",
+      "start_time": 251.76,
+      "end_time": 260.088,
+      "duration": 8.328,
+      "status": "success"
+    },
+    {
+      "index": 20,
+      "text": "Brezilyalı yıldızın ikili mücadelelerdeki isteksizliği, bu konuda zaten kanayan bir yarası olan Fenerbahçe'ye daha da zor anlar yaşatabilir",
+      "start_time": 260.388,
+      "end_time": 272.292,
+      "duration": 11.904,
+      "status": "success"
+    },
+    {
+      "index": 21,
+      "text": "Szymanski form olarak her ne kadar kötü durumda olsa da, pres anlamında Fenerbahçe'nin gücüne güç katan bir profilde oyuncu",
+      "start_time": 272.592,
+      "end_time": 283.992,
+      "duration": 11.4,
+      "status": "success"
+    },
+    {
+      "index": 22,
+      "text": "Onun yerine oynayacak olan Talisca, sarı lacivertlilerin top rakipteyken bir kişi eksik oynuyormuşçasına daha çok efor sarf etmesine sebebiyet verebilir",
+      "start_time": 284.292,
+      "end_time": 297.996,
+      "duration": 13.704,
+      "status": "success"
+    },
+    {
+      "index": 23,
+      "text": "Bu da yaş ortalaması zaten yüksek olan Fenerbahçe'ye ne kadar faydalı olur, tartışma konusu",
+      "start_time": 298.296,
+      "end_time": 306.24,
+      "duration": 7.944,
+      "status": "success"
+    },
+    {
+      "index": 24,
+      "text": "Kritik anlarda kritik golü atacağı konusunda şüphe yok",
+      "start_time": 306.54,
+      "end_time": 311.316,
+      "duration": 4.776,
+      "status": "success"
+    },
+    {
+      "index": 25,
+      "text": "Ancak üretkenlik konusundaki sıkıntılar minimize edilmezse, Talisca bir yerden sonra fayda etmeyebilir",
+      "start_time": 311.616,
+      "end_time": 321.096,
+      "duration": 9.48,
+      "status": "success"
+    },
+    {
+      "index": 26,
+      "text": "Peki siz Fenerbahçe'nin Anderson Talisca transferi hakkında ne düşünüyorsunuz",
+      "start_time": 321.396,
+      "end_time": 327.852,
+      "duration": 6.456,
+      "status": "success"
+    },
+    {
+      "index": 27,
+      "text": "Talisca, sarı lacivertlilere şampiyonluk yolunda fayda sağlar mı",
+      "start_time": 328.152,
+      "end_time": 334.008,
+      "duration": 5.856,
+      "status": "success"
+    },
+    {
+      "index": 28,
+      "text": "Yorumlarınızı bekliyoruz",
+      "start_time": 334.308,
+      "end_time": 336.516,
+      "duration": 2.208,
+      "status": "success"
+    },
+    {
+      "index": 29,
+      "text": "Kısa paslarla hoşça kalın",
+      "start_time": 336.816,
+      "end_time": 339.264,
+      "duration": 2.448,
+      "status": "success"
+    }
+  ]
+}

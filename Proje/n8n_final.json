@@ -1,0 +1,685 @@
+{
+  "name": "YouTube Video Generator - Clean Version",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const driveLink = \"https://drive.google.com/file/d/16gIOjbvLyZTc3rHIIeL-0RmtDMQor4e7/view?usp=drive_link\";\nconst match = driveLink.match(/\\/d\\/([a-zA-Z0-9-_]+)/);\nif (match && match[1]) {\n  return [{ fileId: match[1], driveLink: driveLink }];\n} else {\n  throw new Error('Google Drive file ID bulunamadı');\n}"
+      },
+      "id": "extract-file-id",
+      "name": "Extract File ID",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "download",
+        "fileId": "={{ $json.fileId }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "download-video",
+      "name": "Download Video from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [600, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JBC3W9lAatZTjC58",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "whisper-large-v3-turbo"
+            },
+            {
+              "name": "language",
+              "value": "tr"
+            },
+            {
+              "name": "response_format",
+              "value": "verbose_json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Groq Whisper STT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [800, 300],
+      "id": "groq-whisper"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "model": "llama-3.3-70b-versatile",
+          "messages": [
+            {
+              "role": "system",
+              "content": "İçeriği doğal ve kültürel uyuma uygun şekilde yeniden yaz. Metni YouTube videosu için optimize et. TTS KURALLARI: Sadece düz metin kullan, parantez kullanma, büyük harflerle yazma, doğal cümleler kur, kısaltmalar yerine tam kelimeler kullan, sayıları yazı ile yaz."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "enhance-text",
+      "name": "Enhance Text with AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tmpfiles.org/api/v1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upload-video",
+      "name": "Upload Video to URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [800, 500]
+    },
+    {
+      "parameters": {
+        "text": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+        "translateTo": "EN-US"
+      },
+      "id": "translate-en",
+      "name": "Translate to English",
+      "type": "n8n-nodes-base.deepL",
+      "typeVersion": 1,
+      "position": [1200, 200],
+      "credentials": {
+        "deepLApi": {
+          "id": "bdZME3uEaCDzcFzU",
+          "name": "DeepL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+        "translateTo": "DE"
+      },
+      "id": "translate-de",
+      "name": "Translate to German",
+      "type": "n8n-nodes-base.deepL",
+      "typeVersion": 1,
+      "position": [1200, 400],
+      "credentials": {
+        "deepLApi": {
+          "id": "bdZME3uEaCDzcFzU",
+          "name": "DeepL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_875dfd2de080ea798183097f522f5c13a6b13484a3c6880e"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "text": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "tts-tr",
+      "name": "TTS Turkish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_875dfd2de080ea798183097f522f5c13a6b13484a3c6880e"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "text": "={{ $json.text }}",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "tts-en",
+      "name": "TTS English",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1400, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_875dfd2de080ea798183097f522f5c13a6b13484a3c6880e"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "text": "={{ $json.text }}",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "tts-de",
+      "name": "TTS German",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1400, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tmpfiles.org/api/v1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upload-tr-audio",
+      "name": "Upload Turkish Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tmpfiles.org/api/v1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upload-en-audio",
+      "name": "Upload English Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tmpfiles.org/api/v1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upload-de-audio",
+      "name": "Upload German Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, 400]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "merge-tr-data",
+      "name": "Merge Turkish Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Merge düğümünden gelen veriyi işle\nconst inputData = $input.first().json;\nconsole.log('Turkish merge data:', JSON.stringify(inputData, null, 2));\n\n// Video ve audio URL'lerini bul\nlet videoUrl, audioUrl;\n\nif (inputData.data && inputData.data.url) {\n  videoUrl = inputData.data.url;\n  audioUrl = inputData.data1 ? inputData.data1.url : inputData.data.url;\n} else {\n  // Alternatif veri yapısı kontrolü\n  const keys = Object.keys(inputData);\n  videoUrl = inputData[keys[0]]?.data?.url || inputData.video_url;\n  audioUrl = inputData[keys[1]]?.data?.url || inputData.audio_url;\n}\n\nreturn [{\n  json: {\n    video_url: videoUrl,\n    audio_url: audioUrl,\n    language: 'turkish'\n  }\n}];"
+      },
+      "id": "prepare-tr-data",
+      "name": "Prepare Turkish Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "merge-en-data",
+      "name": "Merge English Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1800, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Merge düğümünden gelen veriyi işle\nconst inputData = $input.first().json;\nconsole.log('English merge data:', JSON.stringify(inputData, null, 2));\n\n// Video ve audio URL'lerini bul\nlet videoUrl, audioUrl;\n\nif (inputData.data && inputData.data.url) {\n  videoUrl = inputData.data.url;\n  audioUrl = inputData.data1 ? inputData.data1.url : inputData.data.url;\n} else {\n  // Alternatif veri yapısı kontrolü\n  const keys = Object.keys(inputData);\n  videoUrl = inputData[keys[0]]?.data?.url || inputData.video_url;\n  audioUrl = inputData[keys[1]]?.data?.url || inputData.audio_url;\n}\n\nreturn [{\n  json: {\n    video_url: videoUrl,\n    audio_url: audioUrl,\n    language: 'english'\n  }\n}];"
+      },
+      "id": "prepare-en-data",
+      "name": "Prepare English Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "merge-de-data",
+      "name": "Merge German Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1800, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Merge düğümünden gelen veriyi işle\nconst inputData = $input.first().json;\nconsole.log('German merge data:', JSON.stringify(inputData, null, 2));\n\n// Video ve audio URL'lerini bul\nlet videoUrl, audioUrl;\n\nif (inputData.data && inputData.data.url) {\n  videoUrl = inputData.data.url;\n  audioUrl = inputData.data1 ? inputData.data1.url : inputData.data.url;\n} else {\n  // Alternatif veri yapısı kontrolü\n  const keys = Object.keys(inputData);\n  videoUrl = inputData[keys[0]]?.data?.url || inputData.video_url;\n  audioUrl = inputData[keys[1]]?.data?.url || inputData.audio_url;\n}\n\nreturn [{\n  json: {\n    video_url: videoUrl,\n    audio_url: audioUrl,\n    language: 'german'\n  }\n}];"
+      },
+      "id": "prepare-de-data",
+      "name": "Prepare German Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2000, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "DdpCe1CsVNEeFdI9BEhVVeRccP8FjrT1rcV7a6s8"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "resolution": "hd",
+          "quality": "high",
+          "scenes": [
+            {
+              "elements": [
+                {
+                  "type": "video",
+                  "src": "={{ $json.video_url }}",
+                  "volume": 0,
+                  "x": 0,
+                  "y": 0,
+                  "width": "100%",
+                  "height": "100%"
+                },
+                {
+                  "type": "audio",
+                  "src": "={{ $json.audio_url }}",
+                  "volume": 1.0
+                }
+              ]
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-tr-video",
+       "name": "Create Turkish Video",
+       "type": "n8n-nodes-base.httpRequest",
+       "typeVersion": 4,
+       "position": [2200, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "DdpCe1CsVNEeFdI9BEhVVeRccP8FjrT1rcV7a6s8"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "resolution": "hd",
+          "quality": "high",
+          "scenes": [
+            {
+              "elements": [
+                {
+                  "type": "video",
+                  "src": "={{ $json.video_url }}",
+                  "volume": 0,
+                  "x": 0,
+                  "y": 0,
+                  "width": "100%",
+                  "height": "100%"
+                },
+                {
+                  "type": "audio",
+                  "src": "={{ $json.audio_url }}",
+                  "volume": 1.0
+                }
+              ]
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-en-video",
+       "name": "Create English Video",
+       "type": "n8n-nodes-base.httpRequest",
+       "typeVersion": 4,
+       "position": [2200, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "DdpCe1CsVNEeFdI9BEhVVeRccP8FjrT1rcV7a6s8"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "resolution": "hd",
+          "quality": "high",
+          "scenes": [
+            {
+              "elements": [
+                {
+                  "type": "video",
+                  "src": "={{ $json.video_url }}",
+                  "volume": 0,
+                  "x": 0,
+                  "y": 0,
+                  "width": "100%",
+                  "height": "100%"
+                },
+                {
+                  "type": "audio",
+                  "src": "={{ $json.audio_url }}",
+                  "volume": 1.0
+                }
+              ]
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-de-video",
+       "name": "Create German Video",
+       "type": "n8n-nodes-base.httpRequest",
+       "typeVersion": 4,
+       "position": [2200, 400]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{"node": "Extract File ID", "type": "main", "index": 0}]]
+    },
+    "Extract File ID": {
+      "main": [[{"node": "Download Video from Drive", "type": "main", "index": 0}]]
+    },
+    "Download Video from Drive": {
+      "main": [
+        [
+          {"node": "Groq Whisper STT", "type": "main", "index": 0},
+          {"node": "Upload Video to URL", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Groq Whisper STT": {
+      "main": [[{"node": "Enhance Text with AI", "type": "main", "index": 0}]]
+    },
+    "Enhance Text with AI": {
+      "main": [
+        [
+          {"node": "Translate to English", "type": "main", "index": 0},
+          {"node": "Translate to German", "type": "main", "index": 0},
+          {"node": "TTS Turkish", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Translate to English": {
+      "main": [[{"node": "TTS English", "type": "main", "index": 0}]]
+    },
+    "Translate to German": {
+      "main": [[{"node": "TTS German", "type": "main", "index": 0}]]
+    },
+    "TTS Turkish": {
+       "main": [[{"node": "Upload Turkish Audio", "type": "main", "index": 0}]]
+     },
+     "TTS English": {
+       "main": [[{"node": "Upload English Audio", "type": "main", "index": 0}]]
+     },
+     "TTS German": {
+       "main": [[{"node": "Upload German Audio", "type": "main", "index": 0}]]
+     },
+     "Upload Turkish Audio": {
+       "main": [[{"node": "Merge Turkish Data", "type": "main", "index": 1}]]
+     },
+     "Upload English Audio": {
+       "main": [[{"node": "Merge English Data", "type": "main", "index": 1}]]
+     },
+     "Upload German Audio": {
+       "main": [[{"node": "Merge German Data", "type": "main", "index": 1}]]
+     },
+     "Upload Video to URL": {
+       "main": [
+         [
+           {"node": "Merge Turkish Data", "type": "main", "index": 0},
+           {"node": "Merge English Data", "type": "main", "index": 0},
+           {"node": "Merge German Data", "type": "main", "index": 0}
+         ]
+       ]
+     },
+     "Merge Turkish Data": {
+       "main": [[{"node": "Prepare Turkish Data", "type": "main", "index": 0}]]
+     },
+     "Merge English Data": {
+       "main": [[{"node": "Prepare English Data", "type": "main", "index": 0}]]
+     },
+     "Merge German Data": {
+       "main": [[{"node": "Prepare German Data", "type": "main", "index": 0}]]
+     },
+    "Prepare Turkish Data": {
+      "main": [[{"node": "Create Turkish Video", "type": "main", "index": 0}]]
+    },
+    "Prepare English Data": {
+      "main": [[{"node": "Create English Video", "type": "main", "index": 0}]]
+    },
+    "Prepare German Data": {
+      "main": [[{"node": "Create German Video", "type": "main", "index": 0}]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

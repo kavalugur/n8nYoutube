@@ -1,0 +1,115 @@
+{
+  "test_summary": {
+    "total_tests": 5,
+    "successful_tests": 5,
+    "failed_tests": 0
+  },
+  "language_results": {
+    "tr": {
+      "tests": [
+        {
+          "original_text": "bu videoda spor haberleri var fenerbahçe galatasaray maçı oynanacak kadrosunda önemli bir değişime giden takımın yeni transferleri var tabi ki burada bazı oyuncular gidecek bazıları gelecek",
+          "enhanced_text": "Bu videoda spor haberleri var fenerbahçe galatasaray maçı oynanacak kadrosunda önemli bir değişime giden takımın yeni transferleri var tabii ki burada bazı oyuncular gidecek bazıları gelecek.",
+          "original_length": 189,
+          "enhanced_length": 191,
+          "length_change_percent": 1.0582010582010581,
+          "quality_metrics": {
+            "original_sentences": 1,
+            "enhanced_sentences": 1,
+            "original_words": 26,
+            "enhanced_words": 26,
+            "original_punctuation": 0,
+            "enhanced_punctuation": 1,
+            "original_capitals": 0,
+            "enhanced_capitals": 1,
+            "original_turkish_errors": 1,
+            "enhanced_turkish_errors": 0
+          },
+          "success": true
+        },
+        {
+          "original_text": "merhaba arkadaşlar bugün sizlere çok önemli bir konudan bahsedeceğiz kripto para piyasasında neler oluyor bitcoin ethereum ve diğer coinlerin durumu nasıl bunları konuşacağız tabii",
+          "enhanced_text": "Merhaba arkadaşlar bugün sizlere çok önemli bir konudan bahsedeceğiz kripto para piyasasında neler oluyor bitcoin ethereum ve diğer coinlerin durumu nasıl bunları konuşacağız tabiii.",
+          "original_length": 180,
+          "enhanced_length": 182,
+          "length_change_percent": 1.1111111111111112,
+          "quality_metrics": {
+            "original_sentences": 1,
+            "enhanced_sentences": 1,
+            "original_words": 24,
+            "enhanced_words": 24,
+            "original_punctuation": 0,
+            "enhanced_punctuation": 1,
+            "original_capitals": 0,
+            "enhanced_capitals": 1,
+            "original_turkish_errors": 0,
+            "enhanced_turkish_errors": 0
+          },
+          "success": true
+        },
+        {
+          "original_text": "teknoloji dünyasında yapay zeka konusu çok önemli hale geldi şirketler bu alanda yatırımlarını artırıyor özellikle chatgpt gibi uygulamalar hayatımızı değiştiriyor mu acaba",
+          "enhanced_text": "Teknoloji dünyasında yapay zeka konusu çok önemli hale geldi şirketler bu alanda yatırımlarını artırıyor özellikle chatgpt gibi uygulamalar hayatımızı değiştiriyor mu acaba.",
+          "original_length": 172,
+          "enhanced_length": 173,
+          "length_change_percent": 0.5813953488372093,
+          "quality_metrics": {
+            "original_sentences": 1,
+            "enhanced_sentences": 1,
+            "original_words": 22,
+            "enhanced_words": 22,
+            "original_punctuation": 0,
+            "enhanced_punctuation": 1,
+            "original_capitals": 0,
+            "enhanced_capitals": 1,
+            "original_turkish_errors": 0,
+            "enhanced_turkish_errors": 0
+          },
+          "success": true
+        }
+      ],
+      "success_rate": 100.0
+    },
+    "en": {
+      "tests": [
+        {
+          "original_text": "this video about sports news fenerbahce galatasaray match will be played the team going to important changes in roster has new transfers of course here some players will leave some will come",
+          "enhanced_text": "This video about sports news fenerbahce galatasaray match will be played the team going to important changes in roster has new transfers of course here some players will leave some will come.",
+          "original_length": 190,
+          "enhanced_length": 191,
+          "length_change_percent": 0.5263157894736842,
+          "quality_metrics": {
+            "original_sentences": 1,
+            "enhanced_sentences": 1,
+            "original_words": 32,
+            "enhanced_words": 32,
+            "original_punctuation": 0,
+            "enhanced_punctuation": 1,
+            "original_capitals": 0,
+            "enhanced_capitals": 1
+          },
+          "success": true
+        },
+        {
+          "original_text": "hello friends today we will talk about very important topic what happening in crypto currency market bitcoin ethereum and other coins situation how these we will discuss of course",
+          "enhanced_text": "Hello friends today we will talk about very important topic what happening in crypto currency market bitcoin ethereum and other coins situation how these we will discuss of course.",
+          "original_length": 179,
+          "enhanced_length": 180,
+          "length_change_percent": 0.5586592178770949,
+          "quality_metrics": {
+            "original_sentences": 1,
+            "enhanced_sentences": 1,
+            "original_words": 29,
+            "enhanced_words": 29,
+            "original_punctuation": 0,
+            "enhanced_punctuation": 1,
+            "original_capitals": 0,
+            "enhanced_capitals": 1
+          },
+          "success": true
+        }
+      ],
+      "success_rate": 100.0
+    }
+  }
+}

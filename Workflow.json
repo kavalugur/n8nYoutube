@@ -1,0 +1,1368 @@
+{
+  "name": "My workflow 37",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "de0c555b-2a44-421b-8bfe-81afa3fa31b6",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2208,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Groq segments'den SRT formatı oluştur\nconst data = $input.first().json;\nconst segments = data.segments || [];\n\nlet srtContent = '';\n\nsegments.forEach((segment, index) => {\n  const start = formatTime(segment.start);\n  const end = formatTime(segment.end);\n  \n  srtContent += `${index + 1}\\n`;\n  srtContent += `${start} --> ${end}\\n`;\n  srtContent += `${segment.text.trim()}\\n\\n`;\n});\n\nfunction formatTime(seconds) {\n  const hours = Math.floor(seconds / 3600);\n  const minutes = Math.floor((seconds % 3600) / 60);\n  const secs = Math.floor(seconds % 60);\n  const ms = Math.floor((seconds % 1) * 1000);\n  \n  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;\n}\n\nreturn [{\n  transcript: data.text,\n  segments: segments,\n  srt_tr: srtContent,\n  timing_data: segments\n}];"
+      },
+      "id": "41c53db8-f789-474d-951c-3c8280a3115f",
+      "name": "Create SRT from Segments",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "model": "={{ $node['Set AI Model1'].json.ai_model || 'llama-3.3-70b-versatile' }}",
+          "messages": [
+            {
+              "role": "system",
+              "content": "KESİN KURAL:'content' içeriğindeki metin sadece yutube için hazırlanmış metin olacak. İçeriği doğal ve kültürel uyuma uygun şekilde yeniden yaz. Metni YouTube videosu için optimize et. Metni daha akıcı, anlaşılır ve ilgi çekici hale getir. Gramer hatalarını düzelt, cümle yapılarını iyileştir ve içeriği daha profesyonel hale getir. Orijinal anlamı koruyarak metni geliştir. ÖNEMLİ TTS KURALLARI: - Sadece düz metin kullan. Hiçbir markdown formatı kullanma. - Parantez kullanma, bunun yerine virgül veya tire kullan. - Büyük harflerle yazılmış kelimeler kullanma. - Ses sentezi için doğal ve akıcı cümleler kur. - Kısaltmalar yerine tam kelimeler kullan. - Sayıları yazı ile yaz. UYARI: Hiçbir düşünce süreci, açıklama veya ek yorum ekleme. Sadece düzenlenmiş metni döndür. <think> etiketleri veya benzer düşünce işaretleri kullanma. Doğrudan sonucu ver. SADECE YOUTUBE METNİNİ İÇER."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.transcript }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d8ec4a8f-d903-4627-8efd-40a35c057200",
+      "name": "Enhance Text with AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1056,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Google Drive link'inden file ID çıkar\nconst driveLink = \"https://drive.google.com/file/d/1zk8YqfegpFfy62Exsx5bwnGB_0n1Steh/view?usp=sharing\";\nconst match = driveLink.match(/\\/d\\/([a-zA-Z0-9-_]+)/);\n\nif (match && match[1]) {\n  return [{ fileId: match[1], driveLink: driveLink }];\n} else {\n  throw new Error('Google Drive file ID bulunamadı');\n}"
+      },
+      "id": "7bf44749-5543-49bb-a105-6e19e06fe296",
+      "name": "Extract File ID",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -2032,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "download",
+        "fileId": "={{ $json.fileId }}",
+        "options": {}
+      },
+      "id": "7bf8b06b-3bee-458b-814a-17d6c51a9299",
+      "name": "Download Video from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        -112
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JBC3W9lAatZTjC58",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "whisper-large-v3-turbo"
+            },
+            {
+              "name": "language",
+              "value": "tr"
+            },
+            {
+              "name": "response_format",
+              "value": "verbose_json"
+            },
+            {
+              "name": "timestamp_granularities[]",
+              "value": "segment"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Groq Whisper STT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -1632,
+        -112
+      ],
+      "id": "8b7309e1-f47f-4cf0-8966-488a8ce19b1e",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fBxbvBDPNFcDrk7U",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "boolean": [],
+          "number": [],
+          "string": [
+            {
+              "name": "ai_model",
+              "value": "openai/gpt-oss-120b"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "18d25ff6-55ec-4742-b6bf-a91df3de0e2a",
+      "name": "Set AI Model1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -1216,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ 'audio_tr_' + new Date().getTime() + '.mp3' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1EmnuL7dvsL738gfeDHf0g6ZYJZOPgVPP",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "16ee112b-2d76-4ac0-ac95-3ba0987ec7af",
+      "name": "Upload Audio TR to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -272,
+        -304
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JBC3W9lAatZTjC58",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sws.speechify.com/v1/audio/stream",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "voice_id",
+              "value": "elif"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YxDonRr82t-MZuym5cRsg9we-oXreG_HUmB_KoO8qk0="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+          "voice_id": "={{ $parameter['queryParameters']['parameters'][0]['value'] || 'george' }}",
+          "model": "simba-multilingual",
+          "language": "tr-TR"
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "a857071d-5cf4-4ae9-b141-84557fb4ef7f",
+      "name": "Speechify TTS TR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -448,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "model": "={{ $node['Set AI Model1'].json.ai_model || 'llama-3.2-90b-vision-preview' }}",
+          "response_format": {
+            "type": "json_object"
+          },
+          "messages": [
+            {
+              "role": "system",
+              "content": "Sen bir YouTube SEO uzmanısın. Verilen içerik için YouTube meta verileri üret. SADECE GEÇERLİ JSON FORMATINDA YANIT VER. Hiçbir açıklama, yorum veya ek metin ekleme.\n\nDöndürmen gereken JSON yapısı:\n{\n  \"title\": \"50-60 karakter başlık\",\n  \"description\": \"1500-2000 karakter açıklama\",\n  \"tags\": [\"etiket1\", \"etiket2\", \"etiket3\"],\n  \"keywords\": [\"anahtar1\", \"anahtar2\", \"anahtar3\"],\n  \"categoryId\": 24,\n  \"hashtags\": [\"#hashtag1\", \"#hashtag2\"],\n  \"language\": \"tr\"\n}\n\nSADECE BU JSON YAPISINI DÖNDÜR. Başka hiçbir şey yazma."
+            },
+            {
+              "role": "user",
+              "content": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f23789a8-bd45-463a-894d-f3d361cb4dd0",
+      "name": "Generate YouTube Metadata TR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -832,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Groq cevabını JSON'a çevir ve alanları normalize et\nconst content = $json.choices?.[0]?.message?.content || '';\nlet data;\ntry {\n  data = JSON.parse(content);\n} catch (e) {\n  // JSON parse hatası varsa, baştaki gereksiz karakterleri ve sondaki fazlalıkları temizle\n  const cleaned = content.replace(/^[^{]*{/, '{').replace(/}[^}]*$/, '}');\n  try {\n    data = JSON.parse(cleaned);\n  } catch (e2) {\n    throw new Error('Metadata JSON parse edilemedi');\n  }\n}\n\n// YouTube için etiketleri düzgün şekilde işle (her etiket 30 karakterden uzun olamaz ve 500 etiketten fazla olamaz)\nfunction cleanTag(tag) {\n  return tag.replace(/[^a-zA-Z0-9]/g, '').substring(0, 30);\n}\n\nlet youtubeTags = [];\nif (Array.isArray(data.tags)) {\n  youtubeTags = data.tags.map(tag => cleanTag(typeof tag === 'string' ? tag : String(tag))).filter(tag => tag.length > 0).slice(0, 500);\n}\n\n// Keywords ve hashtags'leri de etiketlere ekle (duplicate'leri kaldırarak)\nconst allTags = new Set(youtubeTags);\nif (Array.isArray(data.keywords)) {\n  data.keywords.forEach(keyword => {\n    const cleanedKeyword = cleanTag(typeof keyword === 'string' ? keyword : String(keyword));\n    if (cleanedKeyword.length > 0) {\n      allTags.add(cleanedKeyword);\n    }\n  });\n}\nif (Array.isArray(data.hashtags)) {\n  data.hashtags.forEach(hashtag => {\n    const cleanedHashtag = cleanTag(hashtag.replace('#', ''));\n    if (cleanedHashtag.length > 0) {\n      allTags.add(cleanedHashtag);\n    }\n  });\n}\n\n// Fallback değerler - eğer AI boş döndürürse\nconst fallbackTitle = '🚀 İnanılmaz İçerik - Kaçırma! | Viral Video 2024';\nconst fallbackDescription = '🎬 Bu muhteşem videoyu izlediğiniz için çok teşekkür ederiz!\\n\\n🔥 Bu videoda sizi bekleyen harika içerikler:\\n✅ Profesyonel kalitede eğitici içerik\\n✅ Sürükleyici ve eğlenceli anlar\\n✅ Hayatınızı değiştirecek değerli bilgiler\\n✅ Pratik ipuçları ve öneriler\\n\\n💡 Daha fazla kaliteli ve öğretici içerik için:\\n🔔 ABONE OLMAYI unutmayın (ÜCRETSİZ!)\\n👍 Videoyu BEĞENİN - Bu bize çok yardımcı oluyor!\\n💬 Düşüncelerinizi YORUMLARDA paylaşın\\n📤 Sevdiklerinizle PAYLAŞIN\\n\\n🏆 Bizi takip edin ve hiçbir içeriği kaçırmayın!\\n\\n🏷️ #YouTube #Eğitim #Viral #Trend #Kaliteli #Öğretici #Türkçe #2024 #İzlemeye Değer #Muhteşem';\nconst fallbackTags = ['YouTube', 'Egitim', 'Viral', 'Trend', 'Kaliteli', 'Ogretici', 'Turkce', '2024', 'IzlemeyeDeger', 'Muhtesem', 'Harika', 'Bilgi', 'Ipucu', 'Pratik', 'Faydali', 'Guncel', 'Populer', 'Kesfet', 'Onerilen', 'Ilginc', 'Basarili', 'Motivasyon', 'Gelisim', 'Yenilik', 'Teknoloji', 'Hayat', 'Degisim', 'Ilham', 'Rehber'];\n\nconst result = {\n  youtube_metadata: {\n    title: (data.title && data.title.trim()) || fallbackTitle,\n    description: (data.description && data.description.trim()) || fallbackDescription,\n    tags: Array.from(allTags).length > 0 ? Array.from(allTags).slice(0, 500) : fallbackTags,\n    keywords: Array.isArray(data.keywords) && data.keywords.length > 0 ? data.keywords : fallbackTags,\n    categoryId: (typeof data.categoryId === 'number' || /^\\d+$/.test(String(data.categoryId))) ? Number(data.categoryId) : 24,\n    hashtags: Array.isArray(data.hashtags) && data.hashtags.length > 0 ? data.hashtags : ['#YouTube', '#Video', '#İçerik', '#Trend', '#Viral', '#Türkçe', '#TR', '#Kaliteli', '#Eğlence', '#Öğretici'],\n    language: data.language || 'tr'\n  }\n};\nreturn [result];"
+      },
+      "id": "216f5a85-63d9-4bc9-9b3b-418cbb68433b",
+      "name": "Parse Metadata TR",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.choices[0].message.content }}",
+        "translateTo": "EN-US",
+        "additionalFields": {}
+      },
+      "id": "5627e823-62dd-4679-9055-8b801d673049",
+      "name": "DeepL TR to EN",
+      "type": "n8n-nodes-base.deepL",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        -64
+      ],
+      "originalName": "DeepL",
+      "credentials": {
+        "deepLApi": {
+          "id": "bdZME3uEaCDzcFzU",
+          "name": "DeepL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+        "translateTo": "DE",
+        "additionalFields": {}
+      },
+      "id": "43aa76ad-56a0-4fcb-9a6c-3db6a37d52be",
+      "name": "DeepL TR to DE",
+      "type": "n8n-nodes-base.deepL",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        160
+      ],
+      "credentials": {
+        "deepLApi": {
+          "id": "bdZME3uEaCDzcFzU",
+          "name": "DeepL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sws.speechify.com/v1/audio/stream",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "voice_id",
+              "value": "owen"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YPgnS9YHaK8QO-BQHXEuiWefP7vWnA9yqUMyeqBA7rU="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": "={{ $node['DeepL TR to EN'].json.text }}",
+          "voice_id": "owen",
+          "model": "simba-multilingual",
+          "language": "en-US"
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "9987689b-d07f-4d10-b7a2-b34588fdbb26",
+      "name": "Speechify TTS EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -336,
+        -64
+      ],
+      "originalName": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "name": "={{ 'audio_en_' + new Date().getTime() + '.mp3' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1EmnuL7dvsL738gfeDHf0g6ZYJZOPgVPP",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "9eb6a59a-df40-4fbd-ad9c-6d75668b6129",
+      "name": "Upload Audio EN to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -144,
+        -64
+      ],
+      "originalName": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JBC3W9lAatZTjC58",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Build URLs TR'].json.microservice_url }}/process",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "video_url": "={{ $node['Build URLs TR'].json.video_url }}",
+          "audio_url": "={{ $node['Build URLs TR'].json.audio_tr_url }}",
+          "soft_subtitles": true,
+          "burn_subtitles": false,
+          "audio_offset_ms": 0,
+          "subtitle_language": "tr",
+          "volume": 1
+        },
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "id": "9d85f08c-64d7-43ab-b4f3-fb05d3caa78c",
+      "name": "Merge Video TR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        64,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Build URLs EN'].json.microservice_url }}/process",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "video_url": "={{ $node['Build URLs EN'].json.video_url }}",
+          "audio_url": "={{ $node['Build URLs EN'].json.audio_en_url }}",
+          "soft_subtitles": true,
+          "burn_subtitles": false,
+          "audio_offset_ms": 0,
+          "subtitle_language": "en",
+          "volume": 1
+        },
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "id": "ccedbaf6-3bfd-496e-9e17-b99f6b9e3de2",
+      "name": "Merge Video EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        176,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Build URLs DE'].json.microservice_url }}/process",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "video_url": "={{ $node['Build URLs DE'].json.video_url }}",
+          "audio_url": "={{ $node['Build URLs DE'].json.audio_de_url }}",
+          "soft_subtitles": true,
+          "burn_subtitles": false,
+          "audio_offset_ms": 0,
+          "subtitle_language": "de",
+          "volume": 1
+        },
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "id": "67ddea71-1860-4d1f-bad1-ac8cb377a6e5",
+      "name": "Merge Video DE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        160,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.download_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "bf331d78-f1b5-44bc-839c-afc9821cf6d4",
+      "name": "Download Merged TR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        272,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.download_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "4993f459-da06-4cd9-9b12-f84cc23198e1",
+      "name": "Download Merged EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        352,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.download_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "e60a3514-bd0f-4a5f-95a6-7a93083b45a9",
+      "name": "Download Merged DE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        336,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "model": "={{ $node['Set AI Model1'].json.ai_model || 'llama-3.2-90b-vision-preview' }}",
+          "response_format": {
+            "type": "json_object"
+          },
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a YouTube SEO expert. Generate viral metadata for maximum views. CRITICAL: You MUST respond ONLY with valid JSON format. Return exact JSON structure with title, description, tags, keywords, categoryId, hashtags, language fields. Optimize for English content."
+            },
+            {
+              "role": "user",
+              "content": "={{ $node['DeepL TR to EN'].json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3a78023e-f940-449b-b899-dd01a145d6f4",
+      "name": "Generate YouTube Metadata EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -688,
+        -64
+      ],
+      "originalName": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse EN metadata\nconst content = $json.choices?.[0]?.message?.content || '';\nlet data;\ntry {\n  data = JSON.parse(content);\n} catch (e) {\n  const cleaned = content.replace(/^[^{]*{/g, '{').replace(/}[^}]*$/g, '}');\n  try {\n    data = JSON.parse(cleaned);\n  } catch (e2) {\n    throw new Error('Metadata JSON parse failed');\n  }\n}\n\nfunction cleanTag(tag) {\n  return tag.replace(/[^a-zA-Z0-9]/g, '').substring(0, 30);\n}\n\nlet youtubeTags = [];\nif (Array.isArray(data.tags)) {\n  youtubeTags = data.tags.map(tag => cleanTag(typeof tag === 'string' ? tag : String(tag))).filter(tag => tag.length > 0).slice(0, 50);\n}\n\nconst fallbackTitle = '🚀 Incredible Content - Don\\'t Miss Out! | Viral Video 2024';\nconst fallbackDescription = '🎬 Thank you so much for watching this amazing video!\\n\\n🔥 What awaits you in this video:\\n✅ Professional quality educational content\\n✅ Engaging and entertaining moments\\n✅ Life-changing valuable information\\n✅ Practical tips and recommendations\\n\\n💡 For more quality and educational content:\\n🔔 Don\\'t forget to SUBSCRIBE (FREE!)\\n👍 LIKE this video - It helps us a lot!\\n💬 Share your thoughts in the COMMENTS\\n📤 SHARE with your loved ones\\n\\n🏆 Follow us and don\\'t miss any content!\\n\\n🏷️ #YouTube #Education #Viral #Trending #Quality #Educational #English #2024 #MustWatch #Amazing';\nconst fallbackTags = ['YouTube', 'Education', 'Viral', 'Trending', 'Quality', 'Educational', 'English', '2024', 'MustWatch', 'Amazing', 'Great', 'Information', 'Tips', 'Practical', 'Helpful', 'Latest', 'Popular', 'Discover', 'Recommended', 'Interesting', 'Successful', 'Motivation', 'Growth', 'Innovation', 'Technology', 'Life', 'Change', 'Inspiration', 'Guide'];\n\nconst result = {\n  youtube_metadata: {\n    title: (data.title && data.title.trim()) || fallbackTitle,\n    description: (data.description && data.description.trim()) || fallbackDescription,\n    tags: youtubeTags.length > 0 ? youtubeTags : fallbackTags,\n    categoryId: (typeof data.categoryId === 'number' || /^\\d+$/.test(String(data.categoryId))) ? Number(data.categoryId) : 24,\n    language: 'en'\n  }\n};\nreturn [result];"
+      },
+      "id": "0fba00b5-08bd-4703-80de-56ded839c154",
+      "name": "Parse Metadata EN",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        -64
+      ],
+      "originalName": "Function"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "model": "={{ $node['Set AI Model1'].json.ai_model || 'llama-3.2-90b-vision-preview' }}",
+          "response_format": {
+            "type": "json_object"
+          },
+          "messages": [
+            {
+              "role": "system",
+              "content": "Sie sind ein YouTube-SEO-Experte. Erstellen Sie virale Metadaten für maximale Aufrufe. KRITISCH: Sie MÜSSEN NUR im gültigen JSON-Format antworten. Geben Sie die exakte JSON-Struktur mit Titel, Beschreibung, Tags, Schlüsselwörtern, categoryId, Hashtags, Sprachfeldern zurück. Für deutsche Inhalte optimieren."
+            },
+            {
+              "role": "user",
+              "content": "={{ $node['DeepL TR to DE'].json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9820f673-274f-4fb2-857b-e870db5bb96e",
+      "name": "Generate YouTube Metadata DE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -704,
+        160
+      ],
+      "originalName": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse DE metadata\nconst content = $json.choices?.[0]?.message?.content || '';\nlet data;\ntry {\n  data = JSON.parse(content);\n} catch (e) {\n  const cleaned = content.replace(/^[^{]*{/g, '{').replace(/}[^}]*$/g, '}');\n  try {\n    data = JSON.parse(cleaned);\n  } catch (e2) {\n    throw new Error('Metadata JSON parse edilemedi');\n  }\n}\n\nfunction cleanTag(tag) {\n  return tag.replace(/[^a-zA-Z0-9]/g, '').substring(0, 30);\n}\n\nlet youtubeTags = [];\nif (Array.isArray(data.tags)) {\n  youtubeTags = data.tags.map(tag => cleanTag(typeof tag === 'string' ? tag : String(tag))).filter(tag => tag.length > 0).slice(0, 50);\n}\n\nconst fallbackTitle = '🚀 Unglaublicher Inhalt - Verpassen Sie das nicht! | Viral Video 2024';\nconst fallbackDescription = '🎬 Vielen herzlichen Dank fürs Anschauen dieses fantastischen Videos!\n\n🔥 Was Sie in diesem Video erwartet:\n✅ Professionelle und hochwertige Bildungsinhalte\n✅ Fesselnde und unterhaltsame Momente\n✅ Lebensverändernde wertvolle Informationen\n✅ Praktische Tipps und Empfehlungen\n\n💡 Für mehr qualitative und lehrreiche Inhalte:\n🔔 Vergessen Sie nicht zu ABONNIEREN (KOSTENLOS!)\n👍 LIKEN Sie dieses Video - Das hilft uns sehr!\n💬 Teilen Sie Ihre Gedanken in den KOMMENTAREN\n📤 TEILEN Sie mit Ihren Liebsten\n\n🏆 Folgen Sie uns und verpassen Sie keine Inhalte!\n\n🏷️ #YouTube #Bildung #Viral #Trending #Qualität #Lehrreich #Deutsch #2024 #UnbedingtAnsehen #Erstaunlich';\nconst fallbackTags = ['YouTube', 'Bildung', 'Viral', 'Trending', 'Qualität', 'Lehrreich', 'Deutsch', '2024', 'UnbedingtAnsehen', 'Erstaunlich', 'Großartig', 'Information', 'Tipps', 'Praktisch', 'Hilfreich', 'Neueste', 'Beliebt', 'Entdecken', 'Empfohlen', 'Interessant', 'Erfolgreich', 'Motivation', 'Wachstum', 'Innovation', 'Technologie', 'Leben', 'Veränderung', 'Inspiration', 'Anleitung'];\n\nconst result = {\n  youtube_metadata: {\n    title: (data.title && data.title.trim()) || fallbackTitle,\n    description: (data.description && data.description.trim()) || fallbackDescription,\n    tags: youtubeTags.length > 0 ? youtubeTags : fallbackTags,\n    categoryId: (typeof data.categoryId === 'number' || /^\\d+$/.test(String(data.categoryId))) ? Number(data.categoryId) : 24,\n    language: 'de'\n  }\n};\nreturn [result];"
+      },
+      "id": "497557e4-c23c-42e7-95c5-16a4548e5297",
+      "name": "Parse Metadata DE",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        160
+      ],
+      "originalName": "Function"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sws.speechify.com/v1/audio/stream",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "voice_id",
+              "value": "heidi-speechify"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YPgnS9YHaK8QO-BQHXEuiWefP7vWnA9yqUMyeqBA7rU="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": "={{ $node[\"DeepL TR to DE\"].json.text }}",
+          "voice_id": "={{ $parameter['queryParameters']['parameters'][0]['value'] || 'george' }}",
+          "model": "simba-multilingual",
+          "language": "de-DE"
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "7af98744-9a3e-48cf-b255-9fbab0ec1fe1",
+      "name": "Speechify TTS DE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -384,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ 'audio_tr_' + new Date().getTime() + '.mp3' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1EmnuL7dvsL738gfeDHf0g6ZYJZOPgVPP",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "0b6972df-3519-43fa-be9b-34070ace5d90",
+      "name": "Upload Audio DE to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -192,
+        160
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JBC3W9lAatZTjC58",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "video_url",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $node['Extract File ID'].json.fileId }}"
+            },
+            {
+              "name": "audio_tr_url",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $node['Upload Audio TR to Drive'].json.id }}"
+            },
+            {
+              "name": "microservice_url",
+              "value": "http://34.63.103.31:8000"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dad96a45-0828-4245-9306-257e75a8161d",
+      "name": "Build URLs TR",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "video_url",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $node['Extract File ID'].json.fileId }}"
+            },
+            {
+              "name": "audio_en_url",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $node['Upload Audio EN to Drive'].json.id }}"
+            },
+            {
+              "name": "microservice_url",
+              "value": "http://34.63.103.31:8000"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "27fd79f3-990f-4b71-afa6-5a121400292b",
+      "name": "Build URLs EN",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "video_url",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $node['Extract File ID'].json.fileId }}"
+            },
+            {
+              "name": "audio_de_url",
+              "value": "=https://drive.google.com/uc?export=download&id={{ $node['Upload Audio DE to Drive'].json.id }}"
+            },
+            {
+              "name": "microservice_url",
+              "value": "http://34.63.103.31:8000"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "308d925c-1c71-4237-ac7c-fff63aace9cc",
+      "name": "Build URLs DE",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Parse Metadata TR').item.json.youtube_metadata?.title || '🔥 Muhteşem İçerik - Mutlaka İzleyin!' }}",
+        "regionCode": "TR",
+        "categoryId": "={{ $('Parse Metadata TR').item.json.youtube_metadata?.categoryId || '27' }}",
+        "options": {
+          "description": "={{ $('Parse Metadata TR').item.json.youtube_metadata?.description || '🎬 Bu harika videoyu izlediğiniz için teşekkür ederiz!\\n\\n📌 Bu videoda neler var:\\n✅ Kaliteli ve öğretici içerik\\n✅ Eğlenceli ve ilgi çekici anlar\\n✅ Değerli bilgiler ve ipuçları\\n\\n🔔 Daha fazla kaliteli içerik için ABONE OLMAYI unutmayın!\\n👍 Videoyu BEĞENİN ve yorumlarınızı paylaşın!\\n📢 Arkadaşlarınızla PAYLAŞIN!\\n\\n🏷️ #YouTube #Eğitim #İçerik #Türkçe #Kaliteli #Öğretici #Trend #Viral #İzlemeye Değer' }}",
+          "privacyStatus": "public",
+          "selfDeclaredMadeForKids": false,
+          "tags": "={{ $('Parse Metadata TR').item.json.youtube_metadata?.tags?.filter(tag => tag && tag.length <= 30).slice(0, 15).join(',') || 'YouTube,Eğitim,İçerik,Türkçe,Kaliteli,Öğretici,Trend,Viral,İzlemeye Değer,Muhteşem,Harika,Bilgi,İpucu,Faydalı,Güncel' }}"
+        }
+      },
+      "id": "17cbe0fd-ad80-422c-a16b-fd83d0a919a2",
+      "name": "Upload TR to YouTube",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -304
+      ],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "P3xbLbz8K5eGNSDF",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Parse Metadata EN').item.json.youtube_metadata?.title || '🔥 Amazing Content - Must Watch!' }}",
+        "regionCode": "US",
+        "categoryId": "={{ $('Parse Metadata EN').item.json.youtube_metadata?.categoryId || '27' }}",
+        "options": {
+          "description": "={{ $('Parse Metadata EN').item.json.youtube_metadata?.description || '🎬 Thank you for watching this amazing video!\\n\\n📌 What\\'s in this video:\\n✅ High-quality educational content\\n✅ Entertaining and engaging moments\\n✅ Valuable information and tips\\n\\n🔔 Don\\'t forget to SUBSCRIBE for more quality content!\\n👍 LIKE this video and share your thoughts in the comments!\\n📢 SHARE with your friends!\\n\\n🏷️ #YouTube #Education #Content #English #Quality #Educational #Trending #Viral #MustWatch' }}",
+          "privacyStatus": "public",
+          "selfDeclaredMadeForKids": false,
+          "tags": "={{ $('Parse Metadata EN').item.json.youtube_metadata?.tags?.filter(tag => tag && tag.length <= 30).slice(0, 15).join(',') || 'YouTube,Education,Content,English,Quality,Educational,Trending,Viral,MustWatch,Amazing,Great,Information,Tips,Helpful,Latest' }}"
+        }
+      },
+      "id": "a486ac1a-44e1-45f5-98f9-c28c9e79526c",
+      "name": "Upload EN to YouTube",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -64
+      ],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "P3xbLbz8K5eGNSDF",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('Parse Metadata DE').item.json.youtube_metadata?.title || '🔥 Erstaunlicher Inhalt - Unbedingt ansehen!' }}",
+        "regionCode": "DE",
+        "categoryId": "={{ $('Parse Metadata DE').item.json.youtube_metadata?.categoryId || '27' }}",
+        "options": {
+          "description": "={{ $('Parse Metadata DE').item.json.youtube_metadata?.description || '🎬 Vielen Dank, dass Sie sich dieses erstaunliche Video angesehen haben!\\n\\n📌 Was ist in diesem Video:\\n✅ Hochwertige Bildungsinhalte\\n✅ Unterhaltsame und fesselnde Momente\\n✅ Wertvolle Informationen und Tipps\\n\\n🔔 Vergessen Sie nicht zu ABONNIEREN für mehr Qualitätsinhalte!\\n👍 LIKEN Sie dieses Video und teilen Sie Ihre Gedanken in den Kommentaren!\\n📢 TEILEN Sie mit Ihren Freunden!\\n\\n🏷️ #YouTube #Bildung #Inhalt #Deutsch #Qualität #Lehrreich #Trending #Viral #Sehenswert' }}",
+          "privacyStatus": "public",
+          "selfDeclaredMadeForKids": false,
+          "tags": "={{ $('Parse Metadata DE').item.json.youtube_metadata?.tags?.filter(tag => tag && tag.length <= 30).slice(0, 15).join(',') || 'YouTube,Bildung,Inhalt,Deutsch,Qualität,Lehrreich,Trending,Viral,Sehenswert,Erstaunlich,Großartig,Information,Tipps,Hilfreich,Aktuell' }}"
+        }
+      },
+      "id": "94165e7d-1677-42b5-a164-caaade8f21ab",
+      "name": "Upload DE to YouTube1",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        560,
+        160
+      ],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "P3xbLbz8K5eGNSDF",
+          "name": "YouTube account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract File ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create SRT from Segments": {
+      "main": [
+        [
+          {
+            "node": "Set AI Model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Text with AI": {
+      "main": [
+        [
+          {
+            "node": "Generate YouTube Metadata TR",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "DeepL TR to EN",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "DeepL TR to DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video from Drive": {
+      "main": [
+        [
+          {
+            "node": "Groq Whisper STT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Whisper STT": {
+      "main": [
+        [
+          {
+            "node": "Create SRT from Segments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set AI Model1": {
+      "main": [
+        [
+          {
+            "node": "Enhance Text with AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speechify TTS TR": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio TR to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate YouTube Metadata TR": {
+      "main": [
+        [
+          {
+            "node": "Parse Metadata TR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Metadata TR": {
+      "main": [
+        [
+          {
+            "node": "Speechify TTS TR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate YouTube Metadata EN": {
+      "main": [
+        [
+          {
+            "node": "Parse Metadata EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepL TR to EN": {
+      "main": [
+        [
+          {
+            "node": "Generate YouTube Metadata EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Metadata EN": {
+      "main": [
+        [
+          {
+            "node": "Speechify TTS EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate YouTube Metadata DE": {
+      "main": [
+        [
+          {
+            "node": "Parse Metadata DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepL TR to DE": {
+      "main": [
+        [
+          {
+            "node": "Generate YouTube Metadata DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Metadata DE": {
+      "main": [
+        [
+          {
+            "node": "Speechify TTS DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File ID": {
+      "main": [
+        [
+          {
+            "node": "Download Video from Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Video TR": {
+      "main": [
+        [
+          {
+            "node": "Download Merged TR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Video EN": {
+      "main": [
+        [
+          {
+            "node": "Download Merged EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Video DE": {
+      "main": [
+        [
+          {
+            "node": "Download Merged DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Merged TR": {
+      "main": [
+        [
+          {
+            "node": "Upload TR to YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Merged EN": {
+      "main": [
+        [
+          {
+            "node": "Upload EN to YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Merged DE": {
+      "main": [
+        [
+          {
+            "node": "Upload DE to YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio TR to Drive": {
+      "main": [
+        [
+          {
+            "node": "Build URLs TR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio EN to Drive": {
+      "main": [
+        [
+          {
+            "node": "Build URLs EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio DE to Drive": {
+      "main": [
+        [
+          {
+            "node": "Build URLs DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build URLs TR": {
+      "main": [
+        [
+          {
+            "node": "Merge Video TR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build URLs EN": {
+      "main": [
+        [
+          {
+            "node": "Merge Video EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build URLs DE": {
+      "main": [
+        [
+          {
+            "node": "Merge Video DE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speechify TTS DE": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio DE to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speechify TTS EN": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio EN to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c310156b-bb6c-4e48-bbc0-accbe3d7e874",
+  "meta": {
+    "instanceId": "15cb1b025c0b132c6b49981e9ce648f22a8838a21e1fd9fd56a6c659bbe2d18b"
+  },
+  "id": "dVCdIokHpVwgmIys",
+  "tags": []
+}

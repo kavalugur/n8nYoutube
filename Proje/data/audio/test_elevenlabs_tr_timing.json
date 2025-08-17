@@ -1,0 +1,33 @@
+{
+  "language": "tr",
+  "total_duration": 15.24,
+  "total_segments": 3,
+  "audio_file": "data/audio\\test_elevenlabs_tr.mp3",
+  "created_at": "0:00:00",
+  "segments": [
+    {
+      "index": 1,
+      "text": "Merhaba, bu ElevenLabs TTS test cümlesidir.",
+      "start_time": 0.0,
+      "end_time": 5.064,
+      "duration": 5.064,
+      "status": "success"
+    },
+    {
+      "index": 2,
+      "text": "Ses kalitesi ve doğallık kontrol ediliyor.",
+      "start_time": 5.364,
+      "end_time": 9.228,
+      "duration": 3.864,
+      "status": "success"
+    },
+    {
+      "index": 3,
+      "text": "Türkçe karakterler: ğüşıöç ĞÜŞIÖÇ",
+      "start_time": 9.528,
+      "end_time": 15.24,
+      "duration": 5.712,
+      "status": "success"
+    }
+  ]
+}

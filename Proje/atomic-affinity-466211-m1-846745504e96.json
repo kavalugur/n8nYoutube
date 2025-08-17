@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "atomic-affinity-466211-m1",
+  "private_key_id": "846745504e967490b7173043df95898ffdbc88c1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDUx/GtAXFq+ibl\nsY5bGWQktKKFtJuYyvNBW6ZFHXeLukLcwOEh0WAZ1IsyHZj7xO0RjkDivJvatRVE\nQGtLZn7Us2onadwWbwF72gavSqtJItkFbUDSY5qXlgvmjLiuuESW28l/PB13MEKz\nIkIGVoeShqFHwebJjnaQL2Bi+PZiCDp28aVJRIFBMhbFj8MV8Oz0HRyuIjoOxuVU\nTsBcqv6MRKVDPeWW/sU7qEYfrQ4LYxanbD6wJSalpQGh5H27JdmxYDv9/OdZ8lWn\nzFGq4O2RGgInPt7NLI/ESNpcyFrH56etwsFjDeD8KLhfC/xxhDGgrm7vfAj0lQ1e\nkrFszaPhAgMBAAECggEACGcM6CQScoMGXjOwx3AtQDXR5S3IpzP8fyw7WKddPStR\n0J3dRhSakuqNxKDelbKlGfhgH5QLI4vbFyLkGcomYAflvUC07D3d9SIa+XkdYnn5\nz/kMgkJkrG/EcIpGEMA+FScAwgGBuF8zgxdrPAzWtbaTT94cWwFBNVhpmf7y29Qc\n66BVe66MEPkFzT4V7bE/bFEKhwDWdE4x99RJj6ToO6oDseR+hsX7ax6XfsNA7lkn\n4YjGVl8d9xQljYBopbfGtT1O7YeFOBrx9oLusA99RzFOzF2P+NVM6PizSd9b+Pjr\n4nZt5uwJLaK9gXl0rK2T8UkcDZhLXQLyq66hsX8pQQKBgQDsdVRMsIrexFvsHeby\nz3cQyjN5MPj8lOv82RXK+7xvGbLubizEHQZbxte9qmx5h0IpuZk5lguqUYHDgdKx\nUA10PhXq3t50KUlnRJwHBMOdl5rwJWnCtCve2ZP2V+nPi8gkFjSsLDO283YaZDex\ncomUXuHuTGXKJVTVXWRAX/If9QKBgQDmXa6lWv9MR1AnqUDVcOT6FIAbxNcxGNnk\nUwlXHdGwO1kySpAZoqyfKKWKsrSK3I2Dz0rr3QWrMkvvOTLSiep0x/Zq9IoyVjuF\nY+Q0MfeXU3QwtD64jAR5sZILujiTHZFiBVKyKZpzdrPjmM4lMjGNJZoeo3K85l3s\n9l6T21BcvQKBgB4GoBfE6z1ybcHD4km+8n2dT3/6KgPY3UaUQmIuKTVqbAA+2Uxl\n6yLIUyjwdSnRdSNbQAvB8+VCyFmNKLX/VlYGdD4I4vKZM4r7eVyizDw8vh30gkOJ\nIXEA6/sCGtySAW4jq7iZPE/lBoA/bZsI0lOW4NWjueE7cFRPsaVDCbnpAoGACzzU\nsTJQM+tiqJykEgVw1hY77Z7blISO1ImMchh9SyiKAF8MyoNaAmWcNbjj/8YkjSKG\nmBzvEtvgQmo65XRe4JWEmtEVEMGOI8KstjMdzd7/UwTn7l6+NSWJZ1MNQXf2yJ5T\n22cWJr3Kprakj8H0EtubuhTlGvvt5wpZsMLJF80CgYBY4L2iy8E8tFqe2M89wyxn\n8IKIB9CJGZ0MLzTLS1ugIE5CbEFmqbBB43IGSuY7WvfMK0nmIZYKbJ4KR4ZG+IKu\nqqdFf4f0anp+geThX6YJXT13K2fm2hK7la+5xsWNKu4ZYWlorlfmVOnjmxK7RrDX\nRhhVCIV2yV8L7Yqw2tUJ2w==\n-----END PRIVATE KEY-----\n",
+  "client_email": "video-automation-service@atomic-affinity-466211-m1.iam.gserviceaccount.com",
+  "client_id": "109326304401334372734",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/video-automation-service%40atomic-affinity-466211-m1.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

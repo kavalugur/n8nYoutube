@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  video-merge-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PUBLIC_BASE_URL=http://34.63.103.31:8000
+    volumes:
+      - ./output:/app/output
+      - ./temp:/app/temp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - n8n-network
+
+
+
+networks:
+  n8n-network:
+    driver: bridge

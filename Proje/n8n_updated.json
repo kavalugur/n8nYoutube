@@ -1,0 +1,523 @@
+{
+  "name": "YouTube Video Generator with Real Video Editing",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "67813c64-ed3b-4a4b-9d82-2912cb60afef",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-2224, 672]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Google Drive link'inden file ID çıkar\nconst driveLink = \"https://drive.google.com/file/d/16gIOjbvLyZTc3rHIIeL-0RmtDMQor4e7/view?usp=drive_link\";\nconst match = driveLink.match(/\\/d\\/([a-zA-Z0-9-_]+)/);\n\nif (match && match[1]) {\n  return [{ fileId: match[1], driveLink: driveLink }];\n} else {\n  throw new Error('Google Drive file ID bulunamadı');\n}"
+      },
+      "id": "b67a40ca-5a54-4561-bf1f-7066e11e80d1",
+      "name": "Extract File ID",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [-2000, 672]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "download",
+        "fileId": "={{ $json.fileId }}",
+        "options": {}
+      },
+      "id": "542bd7b5-778b-4ef1-945e-8434b64baf9d",
+      "name": "Download Video from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [-1792, 672],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JBC3W9lAatZTjC58",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "whisper-large-v3-turbo"
+            },
+            {
+              "name": "language",
+              "value": "tr"
+            },
+            {
+              "name": "response_format",
+              "value": "verbose_json"
+            },
+            {
+              "name": "timestamp_granularities[]",
+              "value": "segment"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Groq Whisper STT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [-1552, 672],
+      "id": "ac47e40d-2404-41af-9d6a-3b1e234d9132"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Groq segments'den SRT formatı oluştur\nconst data = $input.first().json;\nconst segments = data.segments || [];\n\nlet srtContent = '';\n\nsegments.forEach((segment, index) => {\n  const start = formatTime(segment.start);\n  const end = formatTime(segment.end);\n  \n  srtContent += `${index + 1}\\n`;\n  srtContent += `${start} --> ${end}\\n`;\n  srtContent += `${segment.text.trim()}\\n\\n`;\n});\n\nfunction formatTime(seconds) {\n  const hours = Math.floor(seconds / 3600);\n  const minutes = Math.floor((seconds % 3600) / 60);\n  const secs = Math.floor(seconds % 60);\n  const ms = Math.floor((seconds % 1) * 1000);\n  \n  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;\n}\n\nreturn [{\n  transcript: data.text,\n  segments: segments,\n  srt_tr: srtContent,\n  timing_data: segments\n}];"
+      },
+      "id": "e7bcf701-29ba-49ed-971e-2aad72dfe2bb",
+      "name": "Create SRT from Segments",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [-1344, 672]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "model": "llama-3.3-70b-versatile",
+          "messages": [
+            {
+              "role": "system",
+              "content": "İçeriği doğal ve kültürel uyuma uygun şekilde yeniden yaz. Metni YouTube videosu için optimize et. Metni daha akıcı, anlaşılır ve ilgi çekici hale getir. Gramer hatalarını düzelt, cümle yapılarını iyileştir ve içeriği daha profesyonel hale getir. Orijinal anlamı koruyarak metni geliştir. ÖNEMLİ TTS KURALLARI: - Sadece düz metin kullan. Hiçbir markdown formatı kullanma. - Parantez kullanma, bunun yerine virgül veya tire kullan. - Büyük harflerle yazılmış kelimeler kullanma. - Ses sentezi için doğal ve akıcı cümleler kur. - Kısaltmalar yerine tam kelimeler kullan. - Sayıları yazı ile yaz."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.transcript }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d7f7bdd7-0e3a-4eb1-b462-a8d25850342c",
+      "name": "Enhance Text with AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [-1136, 672]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.choices[0].message.content }}",
+        "translateTo": "EN-US",
+        "additionalFields": {}
+      },
+      "id": "01b73858-979c-441e-b223-92fed08704ce",
+      "name": "DeepL TR to EN",
+      "type": "n8n-nodes-base.deepL",
+      "typeVersion": 1,
+      "position": [-848, 592],
+      "credentials": {
+        "deepLApi": {
+          "id": "bdZME3uEaCDzcFzU",
+          "name": "DeepL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+        "translateTo": "DE",
+        "additionalFields": {}
+      },
+      "id": "2edc1f45-b008-4634-9c1c-7ab833114e72",
+      "name": "DeepL TR to DE", 
+      "type": "n8n-nodes-base.deepL",
+      "typeVersion": 1,
+      "position": [-912, 832],
+      "credentials": {
+        "deepLApi": {
+          "id": "bdZME3uEaCDzcFzU",
+          "name": "DeepL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_875dfd2de080ea798183097f522f5c13a6b13484a3c6880e"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "text": "={{ $node[\"Enhance Text with AI\"].json.choices[0].message.content }}",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "8feb7266-b047-48c3-bad6-0f8f4a6f1f3f",
+      "name": "ElevenLabs TTS TR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [-784, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_875dfd2de080ea798183097f522f5c13a6b13484a3c6880e"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "text": "={{ $node[\"DeepL TR to EN\"].json.text }}",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "8e863dd9-91fc-4c16-96f0-ef9566a62aea",
+      "name": "ElevenLabs TTS EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [-688, 672]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_875dfd2de080ea798183097f522f5c13a6b13484a3c6880e"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "text": "={{ $node[\"DeepL TR to DE\"].json.text }}",
+          "model_id": "eleven_multilingual_v2",
+          "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.5
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "9545c913-c1ec-49a7-8a3a-dbd54d6a3ea4",
+      "name": "ElevenLabs TTS DE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [-656, 896]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.runpod.ai/v2/YOUR_ENDPOINT_ID/runsync",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_RUNPOD_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": {
+            "video_data": "={{ $node[\"Download Video from Drive\"].binary.data }}",
+            "operation": "remove_audio",
+            "output_format": "mp4"
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "remove-audio-runpod",
+      "name": "Remove Audio with RunPod",
+      "type": "n8n-nodes-base.httpRequest", 
+      "typeVersion": 4,
+      "position": [-1400, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.runpod.ai/v2/YOUR_ENDPOINT_ID/runsync",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_RUNPOD_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": {
+            "video_data": "={{ $node[\"Remove Audio with RunPod\"].binary.data }}",
+            "audio_data": "={{ $node[\"ElevenLabs TTS TR\"].binary.data }}",
+            "operation": "combine_video_audio",
+            "output_format": "mp4"
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "combine-tr-runpod",
+      "name": "Combine TR Video Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [-400, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.runpod.ai/v2/YOUR_ENDPOINT_ID/runsync",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_RUNPOD_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": {
+            "video_data": "={{ $node[\"Remove Audio with RunPod\"].binary.data }}",
+            "audio_data": "={{ $node[\"ElevenLabs TTS EN\"].binary.data }}",
+            "operation": "combine_video_audio",
+            "output_format": "mp4"
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "combine-en-runpod",
+      "name": "Combine EN Video Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [-400, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.runpod.ai/v2/YOUR_ENDPOINT_ID/runsync",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_RUNPOD_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": {
+          "input": {
+            "video_data": "={{ $node[\"Remove Audio with RunPod\"].binary.data }}",
+            "audio_data": "={{ $node[\"ElevenLabs TTS DE\"].binary.data }}",
+            "operation": "combine_video_audio", 
+            "output_format": "mp4"
+          }
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "combine-de-runpod",
+      "name": "Combine DE Video Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [-400, 720]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{"node": "Extract File ID", "type": "main", "index": 0}]]
+    },
+    "Extract File ID": {
+      "main": [[{"node": "Download Video from Drive", "type": "main", "index": 0}]]
+    },
+    "Download Video from Drive": {
+      "main": [
+        [
+          {"node": "Groq Whisper STT", "type": "main", "index": 0},
+          {"node": "Remove Audio with RunPod", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Groq Whisper STT": {
+      "main": [[{"node": "Create SRT from Segments", "type": "main", "index": 0}]]
+    },
+    "Create SRT from Segments": {
+      "main": [[{"node": "Enhance Text with AI", "type": "main", "index": 0}]]
+    },
+    "Enhance Text with AI": {
+      "main": [
+        [
+          {"node": "DeepL TR to EN", "type": "main", "index": 0},
+          {"node": "DeepL TR to DE", "type": "main", "index": 0},
+          {"node": "ElevenLabs TTS TR", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "DeepL TR to EN": {
+      "main": [[{"node": "ElevenLabs TTS EN", "type": "main", "index": 0}]]
+    },
+    "DeepL TR to DE": {
+      "main": [[{"node": "ElevenLabs TTS DE", "type": "main", "index": 0}]]
+    },
+    "Remove Audio with RunPod": {
+      "main": [
+        [
+          {"node": "Combine TR Video Audio", "type": "main", "index": 0},
+          {"node": "Combine EN Video Audio", "type": "main", "index": 0},
+          {"node": "Combine DE Video Audio", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "ElevenLabs TTS TR": {
+      "main": [[{"node": "Combine TR Video Audio", "type": "main", "index": 0}]]
+    },
+    "ElevenLabs TTS EN": {
+      "main": [[{"node": "Combine EN Video Audio", "type": "main", "index": 0}]]
+    },
+    "ElevenLabs TTS DE": {
+      "main": [[{"node": "Combine DE Video Audio", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
